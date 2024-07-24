@@ -1,0 +1,9 @@
+---
+- name: update apt cache
+  apt:
+    update_cache: yes
+
+- name: upgrade all packages to the latest version
+  apt:
+    upgrade: dist
+    cache_valid_time: 3600

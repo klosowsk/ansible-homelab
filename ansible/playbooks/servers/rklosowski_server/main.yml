@@ -1,0 +1,82 @@
+- name: Prepare rklosowski server
+  become: yes
+  hosts: rklosowski-server
+  vars:
+    traefik_dir: "/srv/traefik"
+    app_dir: "/srv/app"
+    cf_api_email: "{{ lookup('env', 'PERSONAL_WEBSITE_CLOUDFLARE_EMAIL') }}"
+    cf_api_key: "{{ lookup('env', 'PERSONAL_WEBSITE_CLOUDFLARE_API_KEY') }}"
+  roles:
+    - update_upgrade
+    - docker
+    - portainer_agent
+  tasks:
+    - name: create a docker rklosowski network
+      docker_network:
+        name: rklosowski
+
+    # Traefik
+    - name: ensures traefik dir exists
+      file:
+        path: "{{ traefik_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+
+    - name: adding traefik.yml file
+      template:
+        src: "../../../../docker-compose/rklosowski_server/traefik/traefik.yml.j2"
+        dest: "{{ traefik_dir }}/traefik.yml"
+        mode: 0600
+
+    - name: adding acme.json file
+      copy:
+        content: ""
+        dest: "{{ traefik_dir }}/acme.json"
+        force: false # Avoid replacing if file already exists
+        mode: 0600
+
+    - name: ensures traefik config dir exists
+      file:
+        path: "{{ traefik_dir }}/config"
+        state: directory
+        owner: "{{ ansible_user }}"
+
+    - name: adding config files
+      copy:
+        src: "../../../../docker-compose/rklosowski_server/traefik/config/"
+        dest: "{{ traefik_dir }}/config/"
+        mode: 0600
+
+    - name: set traefik docker-compose
+      template:
+        src: "../../../../docker-compose/rklosowski_server/traefik/docker-compose.yml.j2"
+        dest: "{{ traefik_dir }}/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: run traefik server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ traefik_dir }}"
+        project_name: "rklosowski_server"
+        state: "present"
+        recreate: "always"
+
+    # App server
+    - name: ensures rklosowski dir exists
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+
+    - name: set app docker-compose
+      template:
+        src: "../../../../docker-compose/rklosowski_server/app/docker-compose.yml.j2"
+        dest: "/srv/app/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: run app server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_dir }}"
+        project_name: "rklosowski_server"
+        state: "present"

@@ -1,0 +1,19 @@
+---
+- name: ensures portainer agent dir exists
+  file:
+    path: "/srv/portainer_agent"
+    state: directory
+    owner: "{{ ansible_user }}"
+
+- name: set app docker-compose
+  template:
+    src: "../../../../docker-compose/shared/portainer_agent/docker-compose.yml.j2"
+    dest: "/srv/portainer_agent/docker-compose.yml"
+    mode: 0600
+    owner: "{{ ansible_user }}"
+
+- name: run portainer agent docker compose
+  community.docker.docker_compose_v2:
+    project_src: "/srv/portainer_agent"
+    project_name: "portainer_agent"
+    state: "present"

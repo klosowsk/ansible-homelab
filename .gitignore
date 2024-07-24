@@ -1,0 +1,7 @@
+.vscode
+.envrc
+
+docker-compose/home_server/traefik/config_templates/tesla.yml.j2
+docker-compose/home_server/traefik/config_templates/galileo.yml.j2
+
+.DS_Store

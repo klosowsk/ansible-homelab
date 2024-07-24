@@ -1,0 +1,18 @@
+{% if media_server_ip is defined and media_server_ip is string and media_server_ip != "" %}
+---
+http:
+  routers:
+    to-bazarr:
+      rule: Host(`bazarr.home.{{ domain_name }}`)
+      entryPoints:
+        - websecure
+        - web
+      tls:
+        certResolver: cloudflare
+      service: bazarr
+  services:
+    bazarr:
+      loadBalancer:
+        servers:
+          - url: "http://{{ media_server_ip }}:6767"
+{% endif %}

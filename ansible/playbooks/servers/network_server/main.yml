@@ -1,0 +1,101 @@
+- name: Prepare dns server
+  become: yes
+  hosts: network-server
+  vars:
+    pihole_dir: "/srv/pihole"
+    ddns_dir: "/srv/ddns"
+    web_password: '{{ lookup("env", "PIHOLE_WEB_PASSWORD") }}'
+    timezone: '{{ lookup("env", "PIHOLE_TZ") }}'
+    cf_api_token: '{{ lookup("env", "DDNS_CF_API_TOKEN") }}'
+    zone: '{{ lookup("env", "DDNS_CF_ZONE") }}'
+    subdomain: '{{ lookup("env", "DDNS_CF_SUBDOMAIN") }}'
+  roles:
+    - update_upgrade
+    - docker
+    - portainer_agent
+  tasks:
+    # pihole
+    - name: create etc pihole folder
+      file:
+        path: "{{ pihole_dir }}/etc-pihole"
+        state: directory
+        mode: 0755
+        owner: "{{ ansible_user }}"
+
+    - name: create etc dnsmasq.d folder
+      file:
+        path: "{{ pihole_dir }}/etc-dnsmasq.d"
+        state: directory
+        mode: 0755
+        owner: "{{ ansible_user }}"
+
+    - name: create .env file
+      template:
+        src: "../../../../docker-compose/network_server/pihole/.env.j2"
+        dest: "{{ pihole_dir }}/.env"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+      vars:
+        env_vars:
+          - key: WEBPASSWORD
+            value: "{{ web_password }}"
+          - key: TZ
+            value: "{{ timezone }}"
+
+    - name: set docker-compose
+      template:
+        src: "../../../../docker-compose/network_server/pihole/docker-compose.yml.j2"
+        dest: "{{ pihole_dir }}/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: DNSStubListener=no
+      lineinfile:
+        path: "/etc/systemd/resolved.conf"
+        regexp: "^#?DNSStubListener="
+        line: "DNSStubListener=no"
+        state: present
+        backup: yes
+
+    - name: restart systemd-resolved
+      systemd:
+        name: systemd-resolved
+        state: restarted
+
+    - name: remove /etc/resolv.conf
+      file:
+        path: "/etc/resolv.conf"
+        state: absent
+
+    - name: synlink /run/systemd/resolve/resolv.conf to /etc/resolv.conf
+      file:
+        src: "/run/systemd/resolve/resolv.conf"
+        dest: "/etc/resolv.conf"
+        state: link
+
+    - name: run dns server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ pihole_dir }}"
+        project_name: "network_server"
+        state: "present"
+
+    # cloudflare ddns
+    - name: create cloudflare ddns folder
+      file:
+        path: "{{ ddns_dir }}"
+        state: directory
+        mode: 0755
+        owner: "{{ ansible_user }}"
+
+    - name: set docker-compose
+      template:
+        src: "../../../../docker-compose/network_server/ddns/docker-compose.yml.j2"
+        dest: "{{ ddns_dir }}/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: run ddns server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ ddns_dir }}"
+        project_name: "network_server"
+        state: "present"

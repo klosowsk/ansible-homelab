@@ -1,0 +1,259 @@
+- name: Prepare file server
+  become: yes
+  hosts: media-server
+  vars:
+    mount_smb_dir: "/mnt/data"
+    media_dir: "/mnt/data/media"
+    docker_network: "media"
+    qbittorrent_dir: "/srv/qbittorrent"
+    flaresolverr_dir: "/srv/flaresolverr"
+    prowlarr_dir: "/srv/prowlarr"
+    radarr_dir: "/srv/radarr"
+    sonarr_dir: "/srv/sonarr"
+    bazarr_dir: "/srv/bazarr"
+    jellyfin_dir: "/srv/jellyfin"
+  roles:
+    - update_upgrade
+    - docker
+    - portainer_agent
+  tasks:
+    # samba file server
+    - name: install samba
+      package:
+        name: samba
+        state: present
+
+    - name: backup samba configuration
+      copy:
+        src: /etc/samba/smb.conf
+        dest: /etc/samba/smb.conf.bak
+        remote_src: yes
+        force: no
+
+    - name: create a mount media directory
+      file:
+        path: "{{ mount_smb_dir }}/media"
+        state: directory
+        mode: 0775
+        owner: "nobody"
+        group: "nogroup"
+
+    - name: create a mount shared directory
+      file:
+        path: "{{ mount_smb_dir }}/shared"
+        state: directory
+        mode: 0775
+        owner: "nobody"
+        group: "nogroup"
+
+    - name: create a mount backup directory
+      file:
+        path: "{{ mount_smb_dir }}/backup"
+        state: directory
+        mode: 0775
+        owner: "nobody"
+        group: "nogroup"
+
+    - name: create samba configuration
+      template:
+        src: "./config/smb.conf.j2"
+        dest: "/etc/samba/smb.conf"
+        mode: 0644
+        owner: root
+        group: root
+
+    - name: restart samba
+      service:
+        name: smbd
+        state: restarted
+        enabled: yes
+
+    # media server
+    - name: create a docker media network
+      docker_network:
+        name: "{{ docker_network }}"
+
+    # qbittorrent
+    - name: create qbittorrent data folder
+      file:
+        path: "{{ qbittorrent_dir }}"
+        state: directory
+        mode: 0775
+        owner: "{{ ansible_user }}"
+
+    - name: create qbittorrent appdata folder
+      file:
+        path: "{{ qbittorrent_dir }}/appdata"
+        state: directory
+        mode: 0775
+        owner: "{{ ansible_user }}"
+
+    - name: create downloads folder
+      file:
+        path: "{{ media_dir }}/downloads"
+        state: directory
+        mode: 0775
+        owner: "nobody"
+        group: "nogroup"
+
+    - name: set qbittorrent docker-compose
+      template:
+        src: "../../../../docker-compose/media_server/qbittorrent/docker-compose.yml.j2"
+        dest: "{{ qbittorrent_dir }}/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: run qbittorrent server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ qbittorrent_dir }}"
+        project_name: "media_server"
+        state: "present"
+        recreate: "always"
+
+    # flaresolverr
+    - name: create flaresolverr data folder
+      file:
+        path: "{{ flaresolverr_dir }}"
+        state: directory
+        mode: 0775
+        owner: "{{ ansible_user }}"
+
+    - name: set flaresolverr docker-compose
+      template:
+        src: "../../../../docker-compose/media_server/flaresolverr/docker-compose.yml.j2"
+        dest: "{{ flaresolverr_dir }}/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: run flaresolverr server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ flaresolverr_dir }}"
+        project_name: "media_server"
+        state: "present"
+        recreate: "always"
+
+    # prowlarr
+    - name: create prowlarr data folder
+      file:
+        path: "{{ prowlarr_dir }}/data"
+        state: directory
+        mode: 0775
+        owner: "{{ ansible_user }}"
+
+    - name: set prowlarr docker-compose
+      template:
+        src: "../../../../docker-compose/media_server/prowlarr/docker-compose.yml.j2"
+        dest: "{{ prowlarr_dir }}/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: run prowlarr server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ prowlarr_dir }}"
+        project_name: "media_server"
+        state: "present"
+        recreate: "always"
+
+    # radarr
+    - name: create movies folder
+      file:
+        path: "{{ media_dir }}/movies"
+        state: directory
+        mode: 0775
+        owner: "nobody"
+        group: "nogroup"
+
+    - name: create radarr data folder
+      file:
+        path: "{{ radarr_dir }}/data"
+        state: directory
+        mode: 0775
+        owner: "{{ ansible_user }}"
+
+    - name: set radarr docker-compose
+      template:
+        src: "../../../../docker-compose/media_server/radarr/docker-compose.yml.j2"
+        dest: "{{ radarr_dir }}/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: run radarr server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ radarr_dir }}"
+        project_name: "media_server"
+        state: "present"
+        recreate: "always"
+
+    # sonarr
+    - name: create tvseries folder
+      file:
+        path: "{{ media_dir }}/tvseries"
+        state: directory
+        mode: 0775
+        owner: "nobody"
+        group: "nogroup"
+
+    - name: create sonarr data folder
+      file:
+        path: "{{ sonarr_dir }}/data"
+        state: directory
+        mode: 0775
+        owner: "{{ ansible_user }}"
+
+    - name: set sonarr docker-compose
+      template:
+        src: "../../../../docker-compose/media_server/sonarr/docker-compose.yml.j2"
+        dest: "{{ sonarr_dir }}/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: run sonarr server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ sonarr_dir }}"
+        project_name: "media_server"
+        state: "present"
+        recreate: "always"
+
+    # bazarr
+    - name: create bazarr data folder
+      file:
+        path: "{{ bazarr_dir }}/config"
+        state: directory
+        mode: 0775
+        owner: "{{ ansible_user }}"
+
+    - name: set bazarr docker-compose
+      template:
+        src: "../../../../docker-compose/media_server/bazarr/docker-compose.yml.j2"
+        dest: "{{ bazarr_dir }}/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: run bazarr server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ bazarr_dir }}"
+        project_name: "media_server"
+        state: "present"
+        recreate: "always"
+
+    # jellyfin
+    - name: create jellyfin config folder
+      file:
+        path: "{{ jellyfin_dir }}/config"
+        state: directory
+        mode: 0775
+        owner: "{{ ansible_user }}"
+
+    - name: set docker-compose
+      template:
+        src: "../../../../docker-compose/media_server/jellyfin/docker-compose.yml.j2"
+        dest: "{{ jellyfin_dir }}/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: run jellyfin server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ jellyfin_dir }}"
+        project_name: "media_server"
+        state: "present"
+        recreate: "always"

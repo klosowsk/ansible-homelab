@@ -1,0 +1,72 @@
+# ----------------------------------------
+# GENERAL VARIABLES
+# ----------------------------------------
+
+# Ansible User (required)
+export ANSIBLE_USER=root
+
+# Ansible Port (required)
+export ANSIBLE_PORT=22
+
+# Ansible Connection Type (required)
+export ANSIBLE_CONNECTION=ssh
+
+# ----------------------------------------
+# NETWORK SERVER VARIABLES
+# ----------------------------------------
+
+# Network Proxmox Server IP (required)
+export NETWORK_SERVER_IP=<YOUR_NETWORK_SERVER_IP>
+
+# Pihole web interface password (required)
+export PIHOLE_WEB_PASSWORD=<YOUR_PIHOLE_WEB_PASSWORD>
+
+# Pihole timezone (required)
+export PIHOLE_TZ=ETC/UTC
+
+# DDNS Cloudflare API Token (required)
+export DDNS_CF_API_TOKEN=<YOUR_CF_API_TOKEN>
+
+# DDNS Cloudflare Zone (required)
+export DDNS_CF_ZONE=<YOUR_CF_ZONE>
+
+# DDNS Cloudflare Subdomain (required)
+export DDNS_CF_SUBDOMAIN=ddns
+
+# ----------------------------------------
+# HOME SERVER VARIABLES
+# ----------------------------------------
+
+# Home Proxmox Server IP (required)
+export HOME_SERVER_IP=<YOUR_HOME_SERVER_IP>
+
+# Home Domain Cloudflare Zone (required)
+export HOME_DOMAIN_ZONE=<YOUR_HOME_DOMAIN_ZONE>
+
+# Home Domain Cloudflare Email (required)
+export HOME_DOMAIN_CLOUDFLARE_EMAIL=<YOUR_HOME_DOMAIN_CLOUDFLARE_EMAIL>
+
+# Home Domain Cloudflare API Key (required)
+export HOME_DOMAIN_CLOUDFLARE_API_KEY=<YOUR_HOME_DOMAIN_CLOUDFLARE_API_KEY>
+
+# ----------------------------------------
+# MEDIA SERVER VARIABLES (optional)
+# ----------------------------------------
+
+# Media Server IP (optional)
+export MEDIA_SERVER_IP=<YOUR_MEDIA_SERVER_IP>
+
+# ----------------------------------------
+# PERSONAL WEBSITE VARIABLES (optional)
+# ----------------------------------------
+
+# Personal Website Server IP  (optional)
+export PERSONAL_WEBSITE_SERVER_IP=<YOUR_PERSONAL_WEBSITE_SERVER_IP>
+
+# Cloudflare API Email  (optional)
+export PERSONAL_WEBSITE_CLOUDFLARE_EMAIL=<YOUR_PERSONAL_WEBSITE_CLOUDFLARE_EMAIL>
+
+# Cloudflare API Key  (optional)
+export PERSONAL_WEBSITE_CLOUDFLARE_API_KEY=<YOUR_PERSONAL_WEBSITE_CLOUDFLARE_API_KEY>
+
+# ----------------------------------------

@@ -1,0 +1,19 @@
+{% if network_server_ip is defined and network_server_ip is string and network_server_ip != "" %}
+---
+http:
+  routers:
+    to-pihole:
+      rule: Host(`pihole.home.{{ domain_name }}`)
+      entryPoints:
+        - websecure
+        - web
+      tls:
+        certResolver: cloudflare
+      service: pihole
+
+  services:
+    pihole:
+      loadBalancer:
+        servers:
+          - url: "http://{{ network_server_ip }}"
+{% endif %}

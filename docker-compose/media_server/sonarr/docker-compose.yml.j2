@@ -1,0 +1,21 @@
+---
+networks:
+  {{ docker_network }}:
+    external: true
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    networks:
+      - {{ docker_network }}
+    environment:
+      - PUID=65534
+      - PGID=65534
+      - TZ=America/Sao_Paulo
+    volumes:
+      - {{ sonarr_dir }}/data:/config
+      - {{ media_dir }}/tvseries:/tv #optional
+      - {{ media_dir }}/downloads:/downloads #optional
+    ports:
+      - 8989:8989
+    restart: unless-stopped

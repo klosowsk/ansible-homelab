@@ -1,0 +1,18 @@
+{% if media_server_ip is defined and media_server_ip is string and media_server_ip != "" %}
+---
+http:
+  routers:
+    to-jellyfin:
+      rule: Host(`jellyfin.home.{{ domain_name }}`)
+      entryPoints:
+        - websecure
+        - web
+      tls:
+        certResolver: cloudflare
+      service: jellyfin
+  services:
+    jellyfin:
+      loadBalancer:
+        servers:
+          - url: "http://{{ media_server_ip }}:8096"
+{% endif %}

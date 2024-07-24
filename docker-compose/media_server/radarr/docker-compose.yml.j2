@@ -1,0 +1,21 @@
+---
+networks:
+  {{ docker_network }}:
+    external: true
+services:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=65534
+      - PGID=65534
+      - TZ=America/Sao_Paulo
+    networks:
+      - {{ docker_network }}
+    volumes:
+      - {{ radarr_dir }}/data:/config
+      - {{ media_dir }}/movies:/movies #optional
+      - {{ media_dir }}/downloads:/downloads #optional
+    ports:
+      - 7878:7878
+    restart: unless-stopped

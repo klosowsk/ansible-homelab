@@ -1,0 +1,24 @@
+networks:
+  rklosowski:
+    external: true
+services:
+  rklosowski:
+    container_name: app
+    image: klosowsk/rklosowski:latest
+    networks:
+      - rklosowski
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rklosowski.entrypoints=web,websecure"
+      - "traefik.http.routers.rklosowski.rule=Host(`rklosowski.com`) || Host(`www.rklosowski.com`)"
+      - "traefik.http.services.rklosowski.loadbalancer.server.port=3000"
+      - "traefik.http.routers.rklosowski.tls=true"
+      - "traefik.http.routers.rklosowski.tls.certresolver=cloudflare"
+      - "traefik.http.middlewares.redirect-to-non-www.redirectregex.regex=^https?:\\/\\/www\\.(.*)"
+      - "traefik.http.middlewares.redirect-to-non-www.redirectregex.replacement=https://$${1}"
+      - "traefik.http.middlewares.redirect-to-non-www.redirectregex.permanent=true"
+      - "traefik.http.routers.rklosowski.middlewares=redirect-to-non-www"
+ 

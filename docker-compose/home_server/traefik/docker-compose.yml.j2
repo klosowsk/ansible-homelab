@@ -1,0 +1,32 @@
+networks:
+  home:
+    external: true
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:v3.1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - CF_API_EMAIL={{ cf_api_email }}
+      - CF_API_KEY={{ cf_api_key }}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    networks:
+      - home
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ traefik_dir }}/traefik.yml:/etc/traefik/traefik.yml
+      - {{ traefik_dir }}/config:/etc/traefik/config
+      - {{ traefik_dir }}/acme.json:/etc/traefik/acme.json
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.home.{{ domain_name }}`)"
+      - "traefik.http.routers.traefik.entrypoints=web,websecure"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.certresolver=cloudflare"
+      

@@ -1,0 +1,21 @@
+---
+networks:
+  {{ docker_network }}:
+    external: true
+services:
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    networks:
+      - {{ docker_network }}
+    environment:
+      - PUID=65534
+      - PGID=65534
+      - TZ=America/Sao_Paulo
+    volumes:
+      - {{ bazarr_dir }}/config:/config
+      - {{ media_dir }}/movies:/movies #optional
+      - {{ media_dir }}/tvseries:/tv #optional
+    ports:
+      - 6767:6767
+    restart: unless-stopped

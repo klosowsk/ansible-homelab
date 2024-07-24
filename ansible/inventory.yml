@@ -1,0 +1,15 @@
+# Ansible Hosts Inventory
+all:
+  hosts:
+    network-server:
+      ansible_host: "{{ lookup('env', 'NETWORK_SERVER_IP') }}"
+    home-server:
+      ansible_host: "{{ lookup('env', 'HOME_SERVER_IP') }}"
+    media-server:
+      ansible_host: "{{ lookup('env', 'MEDIA_SERVER_IP') }}"
+    rklosowski-server:
+      ansible_host: "{{ lookup('env', 'PERSONAL_WEBSITE_SERVER_IP') }}"
+  vars:
+    ansible_connection: "{{ lookup('env', 'ANSIBLE_CONNECTION') }}"
+    ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
+    ansible_port: "{{ lookup('env', 'ANSIBLE_PORT') }}"

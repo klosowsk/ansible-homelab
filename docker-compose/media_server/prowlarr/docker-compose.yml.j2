@@ -1,0 +1,19 @@
+---
+networks:
+  {{ docker_network }}:
+    external: true
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    networks:
+      - {{ docker_network }}
+    environment:
+      - PUID=65534
+      - PGID=65534
+      - TZ=America/Sao_Paulo
+    volumes:
+      - {{ prowlarr_dir }}/data:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped

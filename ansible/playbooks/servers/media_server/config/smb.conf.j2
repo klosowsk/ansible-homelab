@@ -1,0 +1,51 @@
+[global]
+  workgroup = WORKGROUP
+  security = user
+  log file = /var/log/samba/log.%m
+  max log size = 1000
+  map to guest = Bad User
+  dns proxy = no
+
+[shared]
+  comment = Samba public share
+  path = {{ mount_smb_dir }}/shared
+  browsable = yes
+  writable = yes
+  guest ok = yes
+  read only = no
+  force user = nobody
+  force group = nogroup
+  create mask = 0664
+  force create mode = 0664
+  directory mask = 0775
+  force directory mode = 0775
+
+[media]
+  comment = Samba media share
+  path = {{ mount_smb_dir }}/media
+  browsable = yes
+  writable = yes
+  guest ok = yes
+  read only = no
+  force user = nobody
+  force group = nogroup
+  create mask = 0664
+  force create mode = 0664
+  directory mask = 0775
+  force directory mode = 0775
+
+[backup]
+  comment = Samba backup share
+  path = {{ mount_smb_dir }}/backup
+  browsable = yes
+  writable = yes
+  guest ok = yes
+  read only = no
+  force user = nobody
+  force group = nogroup
+  create mask = 0664
+  force create mode = 0664
+  directory mask = 0775
+  force directory mode = 0775
+
+
