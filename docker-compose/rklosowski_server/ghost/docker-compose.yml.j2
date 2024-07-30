@@ -1,0 +1,45 @@
+version: '3.1'
+networks:
+  rklosowski:
+    external: true
+services:
+  ghost:
+    image: ghost:5-alpine
+    container_name: ghost
+    restart: unless-stopped
+    ports:
+      - 2368:2368
+    networks:
+      - rklosowski
+    environment:
+      # see https://ghost.org/docs/config/#configuration-options
+      database__client: mysql
+      database__connection__host: db
+      database__connection__user: root
+      database__connection__password: {{ ghost_password }}
+      database__connection__database: ghost
+      # this url value is just an example, and is likely wrong for your environment!
+      url: https://blog.rklosowski.com
+    volumes:
+      - ghost:/var/lib/ghost/content
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ghost.entrypoints=web,websecure"
+      - "traefik.http.routers.ghost.rule=Host(`blog.rklosowski.com`)"
+      - "traefik.http.services.ghost.loadbalancer.server.port=2368"
+      - "traefik.http.routers.ghost.tls=true"
+      - "traefik.http.routers.ghost.tls.certresolver=cloudflare"
+  db:
+    image: mysql:8.0
+    container_name: ghost_db
+    networks:
+      - rklosowski
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: {{ ghost_password }}
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  ghost:
+  db:

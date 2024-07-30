@@ -42,6 +42,7 @@ Choose from the following servers to set up:
   - Dockerized Next.js template
   - Traefik reverse proxy
   - Traefik + Cloudflare DNS challenge
+  - Ghost CMS for blog posts
 
 ---
 

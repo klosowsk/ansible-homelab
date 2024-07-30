@@ -4,8 +4,10 @@
   vars:
     traefik_dir: "/srv/traefik"
     app_dir: "/srv/app"
+    ghost_dir: "/srv/ghost"
     cf_api_email: "{{ lookup('env', 'PERSONAL_WEBSITE_CLOUDFLARE_EMAIL') }}"
     cf_api_key: "{{ lookup('env', 'PERSONAL_WEBSITE_CLOUDFLARE_API_KEY') }}"
+    ghost_password: "{{ lookup('env', 'PERSONAL_WEBSITE_GHOST_PASSWORD') }}"
   roles:
     - update_upgrade
     - docker
@@ -78,5 +80,25 @@
     - name: run app server docker compose
       community.docker.docker_compose_v2:
         project_src: "{{ app_dir }}"
+        project_name: "rklosowski_server"
+        state: "present"
+
+    # Ghost server
+    - name: ensures ghost dir exists
+      file:
+        path: "{{ ghost_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+
+    - name: set ghost docker-compose
+      template:
+        src: "../../../../docker-compose/rklosowski_server/ghost/docker-compose.yml.j2"
+        dest: "/srv/ghost/docker-compose.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+
+    - name: run ghost server docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ ghost_dir }}"
         project_name: "rklosowski_server"
         state: "present"

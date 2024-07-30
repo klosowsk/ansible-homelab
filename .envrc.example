@@ -60,13 +60,16 @@ export MEDIA_SERVER_IP=<YOUR_MEDIA_SERVER_IP>
 # PERSONAL WEBSITE VARIABLES (optional)
 # ----------------------------------------
 
-# Personal Website Server IP  (optional)
+# Personal Website Server IP 
 export PERSONAL_WEBSITE_SERVER_IP=<YOUR_PERSONAL_WEBSITE_SERVER_IP>
 
-# Cloudflare API Email  (optional)
+# Cloudflare API Email 
 export PERSONAL_WEBSITE_CLOUDFLARE_EMAIL=<YOUR_PERSONAL_WEBSITE_CLOUDFLARE_EMAIL>
 
-# Cloudflare API Key  (optional)
+# Cloudflare API Key 
 export PERSONAL_WEBSITE_CLOUDFLARE_API_KEY=<YOUR_PERSONAL_WEBSITE_CLOUDFLARE_API_KEY>
+
+# Ghost password
+export PERSONAL_WEBSITE_GHOST_PASSWORD=<YOUR_PERSONAL_WEBSITE_GHOST_PASSWORD>
 
 # ----------------------------------------
